@@ -1,30 +1,99 @@
 # backend-technical-case
-# Running the app
-Get the node_modules started by running
-`npm install`
+This is a full specification, but it’s completely acceptable if not all requirements are met.
 
-Afterwards you can run the app with `node index`, but it's recommended to install nodemon with `npm install -G nodemon`, and the app can now be run with "auto-restart": `npm run dev`
-
-You can test the endpoints by using for example postman and having the post data in x-www-form-url-encoded. And access the webserver on https://localhost:3000/. It's also easy to add the authentication header under headers.
-
-Tested in node v22.4
-# What is the case?
-- Add a small conversation module between influencers and companies.
-It should only support messages between the parties, so only influencer -> company or company -> influencer.
-
-*influencer -> influencer or company -> company does not need to be possible.*
-
-- Implement a endpoint to view the preview of all invidual conversation by getting newest message for every influencer/company the person has chatted with.
-- Add a endpoint for viewing whole conversation with certain person and also a post endpoint for sending new message in a conversation.
-
-Create the database table that supports the messages, and use it.
-
-*Tips*
-- Consider implementing the messages as a decorator just like the userDecorator.
-- The database can be manipulated in the db.ts file, and will be changed by deleting main.db and restarting application.
-- Since messages are only between the parties you don't need both senderType and receiverType, you can manage with just receiverType and easier WHERE sstatements
-- Try to use JOIN's in one of the endpoints to get relevant names.
+## Running the app
+Install dependencies:
+npm install
 
 
-# What's the meaning of the case?
-You are able to try out building something with our tech setup, and we can afterwards have a constructive talk about how you approached a technical implementation/problem.
+Run the app:
+node index
+
+
+For auto-restart during development:
+npm install -g nodemon
+npm run dev
+
+
+The server runs on:
+https://localhost:3000
+
+
+You can test endpoints using Postman (e.g. `x-www-form-urlencoded` or JSON). Authentication headers can be added manually.
+
+Tested with Node v22.4.
+
+---
+
+## What is the case?
+
+Build a **chat system** between **companies** and **influencers**.
+
+Communication is strictly between the two parties:
+- influencer ↔ company  
+- influencer ↔ influencer and company ↔ company are **out of scope**
+
+The chat must act as a **single timeline** where multiple types of items can appear.
+
+### Chat must support
+- **Messages**
+- **Attachments**
+- **Posted content** (e.g. shared posts/content references)
+- **Transfers** (e.g. payments or value transfers)
+
+Transfers must support **state handling**, at minimum:
+- `initiated`
+- `succeeded`
+
+All of the above must be **visible and retrievable through the chat**, ordered correctly as a unified conversation.
+
+We don’t expect you to spend more than **1–3 hours** on the assignment.  
+If you don’t finish within that time, that’s completely fine — we’ll use it as a basis to discuss your prioritization and trade-offs.
+
+You are allowed to use AI tools.
+
+
+---
+
+## Required functionality
+
+You should implement:
+
+1. **Conversation preview endpoint**
+   - Returns a list of conversations
+   - Each conversation should show the **latest chat item** (not just messages)
+   - Includes relevant counterpart information (company or influencer)
+
+2. **Conversation detail endpoint**
+   - Returns the **full chat timeline** with a specific counterpart
+   - Includes all supported chat item types
+
+3. **Create chat item endpoint**
+   - Used to send messages
+
+4. **Database design**
+   - Design and implement the necessary tables
+   - The database is reset by deleting `main.db` and restarting the app
+   - Schema design is part of the evaluation
+
+---
+
+## Constraints & expectations
+
+- How you model chat items, state, and relations is **entirely up to you**
+- No concrete implementation hints are enforced
+- Focus on:
+  - Data modeling
+  - Query design
+  - API structure
+
+---
+
+## Purpose of the case
+
+The goal is not to finish everything perfectly, but to:
+- Demonstrate how you approach backend design
+- Show how you reason about data modeling and APIs
+- Give us a solid basis for a technical discussion afterward
+
+We’ll use your solution to talk through trade-offs, assumptions, and possible improvements.
