@@ -10,25 +10,7 @@ import {
 	getInfluencerConversationDetail,
 	getInfluencerPreviews
 } from "../services/conversationService"
-
-const parseConversationId = (value: string | undefined) => {
-	const parsed = Number(value)
-	if (!Number.isInteger(parsed) || parsed <= 0) {
-		throw new HttpError(400, "Invalid conversation id")
-	}
-	return parsed
-}
-
-const parseMessageText = (value: unknown) => {
-	if (typeof value !== "string") {
-		throw new HttpError(400, "Message text is required")
-	}
-	const trimmed = value.trim()
-	if (trimmed.length === 0) {
-		throw new HttpError(400, "Message text is required")
-	}
-	return trimmed
-}
+import { parseConversationId, parseMessageText } from "../utils/validation"
 
 class ConversationController {
 	static async listCompanyConversations(req: AuthenticatedRequest, res: Response) {
