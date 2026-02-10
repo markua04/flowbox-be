@@ -1,7 +1,7 @@
-import { execute } from "./db";
+import { execute } from "./db"
 
 const createSchema = async (): Promise<void> => {
-	await execute("PRAGMA foreign_keys = ON");
+	await execute("PRAGMA foreign_keys = ON")
 
 	const sqlStart = [
 		`CREATE TABLE IF NOT EXISTS \`influencers\` (
@@ -69,14 +69,14 @@ const createSchema = async (): Promise<void> => {
             FOREIGN KEY(\`post_id\`) REFERENCES \`posted_contents\`(\`id\`),
             FOREIGN KEY(\`transfer_id\`) REFERENCES \`transfers\`(\`id\`)
          )`,
-		`CREATE INDEX IF NOT EXISTS \`idx_chat_items_conversation_created\` ON \`chat_items\`(\`conversation_id\`, \`created_at\`, \`id\`)`,
-		`CREATE INDEX IF NOT EXISTS \`idx_conversations_company\` ON \`conversations\`(\`company_id\`)`,
-		`CREATE INDEX IF NOT EXISTS \`idx_conversations_influencer\` ON \`conversations\`(\`influencer_id\`)`,
-	];
+		"CREATE INDEX IF NOT EXISTS `idx_chat_items_conversation_created` ON `chat_items`(`conversation_id`, `created_at`, `id`)",
+		"CREATE INDEX IF NOT EXISTS `idx_conversations_company` ON `conversations`(`company_id`)",
+		"CREATE INDEX IF NOT EXISTS `idx_conversations_influencer` ON `conversations`(`influencer_id`)",
+	]
 
 	for (const statement of sqlStart) {
-		await execute(statement);
+		await execute(statement)
 	}
-};
+}
 
-export { createSchema };
+export { createSchema }

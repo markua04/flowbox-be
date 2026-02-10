@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/influencer/messages/{{conversationId}}
+  url: {{baseUrl}}/influencer/messages/{{conversationId}}?limit=25
   body: none
   auth: none
+}
+
+params:query {
+  limit: 25
 }
 
 headers {

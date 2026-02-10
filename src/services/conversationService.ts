@@ -8,8 +8,13 @@ import {
 	getInfluencerConversationById,
 	getInfluencerConversationPreviews
 } from "../repositories/conversationRepository"
-import { createMessage, createMessageChatItem, getChatItemById } from "../repositories/messageRepository"
+import { getChatItemById } from "../repositories/chatItemRepository"
+import { createAttachment, createAttachmentChatItem, AttachmentInput } from "../repositories/attachmentRepository"
+import { createMessage, createMessageChatItem } from "../repositories/messageRepository"
+import { runInTransaction } from "../repositories/transaction"
 import HttpError from "../utils/httpError"
+import type { TimelineCursor } from "../utils/validation"
+import { buildNextCursorFromPreview, buildNextCursorFromTimeline } from "./paginationService"
 
 interface ConversationCounterpart {
 	id: number
@@ -35,6 +40,11 @@ interface ConversationPreview {
 	latestItem: ChatItemPreview
 }
 
+interface ConversationPreviewResult {
+	conversations: ConversationPreview[]
+	nextCursor: TimelineCursor | null
+}
+
 interface ChatItem {
 	id: number
 	type: string
@@ -50,6 +60,11 @@ interface ConversationDetail {
 	influencerId: number
 	counterpart: ConversationCounterpart
 	items: ChatItem[]
+}
+
+interface ConversationDetailResult {
+	conversation: ConversationDetail
+	nextCursor: TimelineCursor | null
 }
 
 const buildPreviewPayload = (row: ConversationPreviewRow): Record<string, unknown> | null => {
@@ -158,32 +173,62 @@ const mapConversation = (conversation: ConversationRow, items: ChatItem[]): Conv
 	items
 })
 
-const getCompanyPreviews = async (companyId: number): Promise<ConversationPreview[]> => {
-	const rows = await getCompanyConversationPreviews(companyId)
-	return rows.map(mapPreview)
+const getCompanyPreviews = async (companyId: number, limit: number, cursor: TimelineCursor | null): Promise<ConversationPreviewResult> => {
+	const rows = await getCompanyConversationPreviews(companyId, limit, cursor)
+	return {
+		conversations: rows.map(mapPreview),
+		nextCursor: buildNextCursorFromPreview(rows, limit)
+	}
 }
 
-const getInfluencerPreviews = async (influencerId: number): Promise<ConversationPreview[]> => {
-	const rows = await getInfluencerConversationPreviews(influencerId)
-	return rows.map(mapPreview)
+const getInfluencerPreviews = async (influencerId: number, limit: number, cursor: TimelineCursor | null): Promise<ConversationPreviewResult> => {
+	const rows = await getInfluencerConversationPreviews(influencerId, limit, cursor)
+	return {
+		conversations: rows.map(mapPreview),
+		nextCursor: buildNextCursorFromPreview(rows, limit)
+	}
 }
 
-const getCompanyConversationDetail = async (companyId: number, conversationId: number): Promise<ConversationDetail> => {
+const getCompanyConversationDetail = async (
+	companyId: number,
+	conversationId: number,
+	limit: number,
+	cursor: TimelineCursor | null
+): Promise<ConversationDetailResult> => {
 	const conversation = await getCompanyConversationById(companyId, conversationId)
 	if (!conversation) {
 		throw new HttpError(404, "Conversation not found")
 	}
-	const items = await getConversationTimeline(conversationId)
-	return mapConversation(conversation, items.map(mapTimelineItem))
+
+	const rows = await getConversationTimeline(conversationId, limit, cursor)
+	const nextCursor = buildNextCursorFromTimeline(rows, limit)
+
+	const items = rows.map(mapTimelineItem).reverse()
+	return {
+		conversation: mapConversation(conversation, items),
+		nextCursor
+	}
 }
 
-const getInfluencerConversationDetail = async (influencerId: number, conversationId: number): Promise<ConversationDetail> => {
+const getInfluencerConversationDetail = async (
+	influencerId: number,
+	conversationId: number,
+	limit: number,
+	cursor: TimelineCursor | null
+): Promise<ConversationDetailResult> => {
 	const conversation = await getInfluencerConversationById(influencerId, conversationId)
 	if (!conversation) {
 		throw new HttpError(404, "Conversation not found")
 	}
-	const items = await getConversationTimeline(conversationId)
-	return mapConversation(conversation, items.map(mapTimelineItem))
+
+	const rows = await getConversationTimeline(conversationId, limit, cursor)
+	const nextCursor = buildNextCursorFromTimeline(rows, limit)
+
+	const items = rows.map(mapTimelineItem).reverse()
+	return {
+		conversation: mapConversation(conversation, items),
+		nextCursor
+	}
 }
 
 const createCompanyMessage = async (companyId: number, conversationId: number, text: string): Promise<ChatItem> => {
@@ -192,13 +237,15 @@ const createCompanyMessage = async (companyId: number, conversationId: number, t
 		throw new HttpError(404, "Conversation not found")
 	}
 
-	const messageId = await createMessage(text)
-	const chatItemId = await createMessageChatItem(conversationId, "company", companyId, messageId)
-	const created = await getChatItemById(chatItemId)
-	if (!created) {
-		throw new HttpError(500, "Failed to create message")
-	}
-	return mapTimelineItem(created)
+	return runInTransaction(async () => {
+		const messageId = await createMessage(text)
+		const chatItemId = await createMessageChatItem(conversationId, "company", companyId, messageId)
+		const created = await getChatItemById(chatItemId)
+		if (!created) {
+			throw new HttpError(500, "Failed to create message")
+		}
+		return mapTimelineItem(created)
+	})
 }
 
 const createInfluencerMessage = async (influencerId: number, conversationId: number, text: string): Promise<ChatItem> => {
@@ -207,13 +254,49 @@ const createInfluencerMessage = async (influencerId: number, conversationId: num
 		throw new HttpError(404, "Conversation not found")
 	}
 
-	const messageId = await createMessage(text)
-	const chatItemId = await createMessageChatItem(conversationId, "influencer", influencerId, messageId)
-	const created = await getChatItemById(chatItemId)
-	if (!created) {
-		throw new HttpError(500, "Failed to create message")
+	return runInTransaction(async () => {
+		const messageId = await createMessage(text)
+		const chatItemId = await createMessageChatItem(conversationId, "influencer", influencerId, messageId)
+		const created = await getChatItemById(chatItemId)
+		if (!created) {
+			throw new HttpError(500, "Failed to create message")
+		}
+		return mapTimelineItem(created)
+	})
+}
+
+const createCompanyAttachment = async (companyId: number, conversationId: number, input: AttachmentInput): Promise<ChatItem> => {
+	const conversation = await getCompanyConversationById(companyId, conversationId)
+	if (!conversation) {
+		throw new HttpError(404, "Conversation not found")
 	}
-	return mapTimelineItem(created)
+
+	return runInTransaction(async () => {
+		const attachmentId = await createAttachment(input)
+		const chatItemId = await createAttachmentChatItem(conversationId, "company", companyId, attachmentId)
+		const created = await getChatItemById(chatItemId)
+		if (!created) {
+			throw new HttpError(500, "Failed to create attachment")
+		}
+		return mapTimelineItem(created)
+	})
+}
+
+const createInfluencerAttachment = async (influencerId: number, conversationId: number, input: AttachmentInput): Promise<ChatItem> => {
+	const conversation = await getInfluencerConversationById(influencerId, conversationId)
+	if (!conversation) {
+		throw new HttpError(404, "Conversation not found")
+	}
+
+	return runInTransaction(async () => {
+		const attachmentId = await createAttachment(input)
+		const chatItemId = await createAttachmentChatItem(conversationId, "influencer", influencerId, attachmentId)
+		const created = await getChatItemById(chatItemId)
+		if (!created) {
+			throw new HttpError(500, "Failed to create attachment")
+		}
+		return mapTimelineItem(created)
+	})
 }
 
 export {
@@ -222,6 +305,16 @@ export {
 	getCompanyConversationDetail,
 	getInfluencerConversationDetail,
 	createCompanyMessage,
-	createInfluencerMessage
+	createInfluencerMessage,
+	createCompanyAttachment,
+	createInfluencerAttachment
 }
-export type { ConversationPreview, ConversationCounterpart, ChatItemPreview, ConversationDetail, ChatItem }
+export type {
+	ConversationPreview,
+	ConversationPreviewResult,
+	ConversationCounterpart,
+	ChatItemPreview,
+	ConversationDetail,
+	ChatItem,
+	ConversationDetailResult
+}

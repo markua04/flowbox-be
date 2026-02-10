@@ -9,10 +9,15 @@ module.exports = {
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended"
 	],
-	"ignorePatterns": ["**/*.js"],
 	"overrides": [
 		{
 			"files": ["**/*.ts", "**/*.tsx"]
+		},
+		{
+			"files": ["src/repositories/db.ts"],
+			"rules": {
+				"no-invalid-this": "off"
+			}
 		}
 	],
 	"parser": "@typescript-eslint/parser",
@@ -38,15 +43,15 @@ module.exports = {
 		],
 		"semi": [
 			"error",
-			"always"
+			"never"
 		],
 		"comma-dangle": [
 			"error",
 			"only-multiline"
 		],
 		"@typescript-eslint/no-explicit-any": 0,
-        "camelcase": ["error", {"properties": "never"}],
-		'@typescript-eslint/camelcase': 'off',
+		"camelcase": ["error", {"properties": "never"}],
+		"@typescript-eslint/camelcase": "off",
 		"no-const-assign": "error",
 		"no-constant-binary-expression": "error",
 		"no-constructor-return": "error",
@@ -64,7 +69,6 @@ module.exports = {
 		"no-use-before-define": "error",
 		"use-isnan": "error",
 		"valid-typeof": "error",
-		"camelcase": "error",
 		"block-scoped-var": "error",
 		"capitalized-comments": "warn",
 		"default-case-last": "warn",
@@ -72,4 +76,4 @@ module.exports = {
 		"no-invalid-this": "error",
 		"no-var": "warn"
 	}
-};
+}

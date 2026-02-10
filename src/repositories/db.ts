@@ -1,16 +1,15 @@
 import sqlite3 from "sqlite3"
 import HttpError from "../utils/httpError"
 
-const db = new sqlite3.Database("./database/main.db")
+const dbPath = process.env.DB_PATH ?? "./database/main.db"
+const db = new sqlite3.Database(dbPath)
 
 type SqlParams = readonly unknown[]
 
 const query = <T>(sql: string, params: SqlParams = []): Promise<T[]> => new Promise((resolve, reject) => {
-	db.prepare(sql).all(params, (err, rows) => {
+	db.all(sql, params, (err, rows) => {
 		if (err) {
-			return reject(new HttpError(500, "Database query failed", "DB_QUERY_ERROR", {
-				sql
-			}))
+			return reject(new HttpError(500, "Database query failed", "DB_QUERY_ERROR"))
 		}
 		resolve(rows as T[])
 	})
@@ -19,9 +18,7 @@ const query = <T>(sql: string, params: SqlParams = []): Promise<T[]> => new Prom
 const execute = (sql: string, params: SqlParams = []): Promise<void> => new Promise((resolve, reject) => {
 	db.run(sql, params, err => {
 		if (err) {
-			return reject(new HttpError(500, "Database execution failed", "DB_EXECUTE_ERROR", {
-				sql
-			}))
+			return reject(new HttpError(500, "Database execution failed", "DB_EXECUTE_ERROR"))
 		}
 		resolve()
 	})
@@ -30,9 +27,7 @@ const execute = (sql: string, params: SqlParams = []): Promise<void> => new Prom
 const insert = (sql: string, params: SqlParams = []): Promise<number> => new Promise((resolve, reject) => {
 	db.run(sql, params, function(err) {
 		if (err) {
-			return reject(new HttpError(500, "Database insert failed", "DB_INSERT_ERROR", {
-				sql
-			}))
+			return reject(new HttpError(500, "Database insert failed", "DB_INSERT_ERROR"))
 		}
 		resolve(this.lastID ?? 0)
 	})

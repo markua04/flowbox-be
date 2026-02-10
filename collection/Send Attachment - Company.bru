@@ -1,0 +1,29 @@
+meta {
+  name: Send Attachment - Company
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/company/messages/{{conversationId}}/attachments
+  body: json
+  auth: inherit
+}
+
+headers {
+  authorization: {{companyAuth}}
+}
+
+body:json {
+  {
+    "url": "https://example.com/files/brand-assets.pdf",
+    "mimeType": "application/pdf",
+    "fileName": "brand-assets.pdf",
+    "sizeBytes": 204800
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,5 +1,4 @@
-import { insert, query } from "./db"
-import type { ConversationTimelineRow } from "./conversationRepository"
+import { insert } from "./db"
 
 const createMessage = async (text: string): Promise<number> => {
 	return insert("INSERT INTO messages(text) VALUES(?)", [text])
@@ -12,38 +11,4 @@ const createMessageChatItem = async (conversationId: number, senderType: string,
 	)
 }
 
-const getChatItemById = async (chatItemId: number): Promise<ConversationTimelineRow | null> => {
-	const sql = `
-		SELECT
-			ci.id as itemId,
-			ci.type as itemType,
-			ci.sender_type as itemSenderType,
-			ci.sender_id as itemSenderId,
-			ci.created_at as itemCreatedAt,
-			m.text as messageText,
-			a.url as attachmentUrl,
-			a.mime_type as attachmentMimeType,
-			a.file_name as attachmentFileName,
-			a.size_bytes as attachmentSizeBytes,
-			p.platform as postPlatform,
-			p.url as postUrl,
-			p.title as postTitle,
-			p.caption as postCaption,
-			t.amount as transferAmount,
-			t.currency as transferCurrency,
-			t.state as transferState,
-			t.reference as transferReference
-		FROM chat_items ci
-		LEFT JOIN messages m ON m.id = ci.message_id
-		LEFT JOIN attachments a ON a.id = ci.attachment_id
-		LEFT JOIN posted_contents p ON p.id = ci.post_id
-		LEFT JOIN transfers t ON t.id = ci.transfer_id
-		WHERE ci.id = ?
-		LIMIT 1
-	`
-
-	const [row] = await query<ConversationTimelineRow>(sql, [chatItemId])
-	return row ?? null
-}
-
-export { createMessage, createMessageChatItem, getChatItemById }
+export { createMessage, createMessageChatItem }

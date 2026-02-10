@@ -1,0 +1,29 @@
+meta {
+  name: Send Attachment - Influencer
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/influencer/messages/{{conversationId}}/attachments
+  body: json
+  auth: inherit
+}
+
+headers {
+  authorization: {{influencerAuth}}
+}
+
+body:json {
+  {
+    "url": "https://example.com/files/ugc-photo.jpg",
+    "mimeType": "image/jpeg",
+    "fileName": "ugc-photo.jpg",
+    "sizeBytes": 102400
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
