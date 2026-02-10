@@ -1,0 +1,13 @@
+meta {
+  name: Company Conversations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/company/messages
+}
+
+headers {
+  authorization: {{companyAuth}}
+}

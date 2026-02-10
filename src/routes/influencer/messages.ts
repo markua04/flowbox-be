@@ -1,25 +1,16 @@
-import { Router, Response } from "express";
-export const router = Router();
-import authMiddleware, { AuthenticatedRequest } from "../../middlewares/auth";
-//Get list of conversations with newest message from each conversation
-router.get("/", authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
-	res.json({
-		conversations: []
-	});
-});
+import { Router } from "express"
+import authMiddleware from "../../middlewares/auth"
+import ConversationController from "../../controllers/conversationController"
+import resource from "../resource"
 
-//Get everything in a conversation
-router.get("/:id", authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
-	res.json({
-		messages: []
-	});
-});
+const router = Router()
 
-//Create a new message in a conversation
-router.post("/:id", authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
-	res.json({
-		success: false
-	});
-});
+router.use(authMiddleware)
 
-export default router;
+resource(router, {
+	index: ConversationController.listInfluencerConversations,
+	show: ConversationController.showInfluencerConversation,
+	store: ConversationController.storeInfluencerMessage
+})
+
+export default router

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { query } from "../controllers/db";
+import { query } from "../repositories/db";
 
 const error = "Please set a Authentication header by setting a header called \"authorization john@gmail.com:influencer or dream@dreaminfluencers.com:company\"";
 interface User {

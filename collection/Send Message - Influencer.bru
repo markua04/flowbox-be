@@ -1,0 +1,24 @@
+meta {
+  name: Send Message - Influencer
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/influencer/messages/{{conversationId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  authorization: {{influencerAuth}}
+}
+
+body:json {
+  { "text": "Hello from influencer" }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

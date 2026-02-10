@@ -1,0 +1,26 @@
+meta {
+  name: Send Message - Company
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/company/messages/{{conversationId}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  authorization: {{companyAuth}}
+}
+
+body:json {
+  {
+    "text": "Hello from company"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

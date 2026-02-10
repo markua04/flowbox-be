@@ -2,22 +2,35 @@
 This is a full specification, but it’s completely acceptable if not all requirements are met.
 
 ## Running the app
-Install dependencies:
-npm install
 
-
-Run the app:
-node index
-
-
-For auto-restart during development:
-npm install -g nodemon
-npm run dev
-
+### Docker (recommended)
+Build and run:
+```
+docker compose up --build
+```
 
 The server runs on:
-https://localhost:3000
+http://localhost:3000
 
+### Local
+Install dependencies:
+```
+npm install
+```
+
+Run the app:
+```
+node index
+```
+
+For auto-restart during development:
+```
+npm install -g nodemon
+npm run dev
+```
+
+The server runs on:
+http://localhost:3000
 
 You can test endpoints using Postman (e.g. `x-www-form-urlencoded` or JSON). Authentication headers can be added manually.
 
