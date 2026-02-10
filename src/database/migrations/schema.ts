@@ -1,4 +1,4 @@
-import { execute } from "../repositories/db"
+import { execute } from "../../repositories/db"
 
 const createSchema = async (): Promise<void> => {
 	const sqlStart = [

@@ -1,4 +1,4 @@
-import { createSchema } from "../migrations/schema"
+import { createSchema } from "../database/migrations/schema"
 import { seedData } from "../seeds/seedRepository"
 
 const initializeDatabase = async (): Promise<void> => {
