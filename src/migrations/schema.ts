@@ -1,22 +1,22 @@
-import { execute } from "./db"
+import { execute } from "../repositories/db"
 
 const createSchema = async (): Promise<void> => {
-	await execute("PRAGMA foreign_keys = ON")
-
 	const sqlStart = [
 		`CREATE TABLE IF NOT EXISTS \`influencers\` (
             \`id\` INTEGER PRIMARY KEY,
             \`name\` TEXT,
             \`igUsername\` TEXT,
             \`email\` TEXT,
-            \`passwordHash\` TEXT
+            \`passwordHash\` TEXT,
+            UNIQUE(\`email\`)
          )`,
 		`CREATE TABLE IF NOT EXISTS \`companies\` (
             \`id\` INTEGER PRIMARY KEY,
             \`name\` TEXT,
             \`CVR\` INT,
             \`email\` TEXT,
-            \`passwordHash\` TEXT
+            \`passwordHash\` TEXT,
+            UNIQUE(\`email\`)
          )`,
 		`CREATE TABLE IF NOT EXISTS \`conversations\` (
             \`id\` INTEGER PRIMARY KEY,
@@ -69,9 +69,11 @@ const createSchema = async (): Promise<void> => {
             FOREIGN KEY(\`post_id\`) REFERENCES \`posted_contents\`(\`id\`),
             FOREIGN KEY(\`transfer_id\`) REFERENCES \`transfers\`(\`id\`)
          )`,
-		"CREATE INDEX IF NOT EXISTS `idx_chat_items_conversation_created` ON `chat_items`(`conversation_id`, `created_at`, `id`)",
-		"CREATE INDEX IF NOT EXISTS `idx_conversations_company` ON `conversations`(`company_id`)",
-		"CREATE INDEX IF NOT EXISTS `idx_conversations_influencer` ON `conversations`(`influencer_id`)",
+		`CREATE INDEX IF NOT EXISTS \`idx_chat_items_conversation_created\` ON \`chat_items\`(\`conversation_id\`, \`created_at\`, \`id\`)`,
+		`CREATE INDEX IF NOT EXISTS \`idx_conversations_company\` ON \`conversations\`(\`company_id\`)`,
+		`CREATE INDEX IF NOT EXISTS \`idx_conversations_influencer\` ON \`conversations\`(\`influencer_id\`)`,
+		`CREATE INDEX IF NOT EXISTS \`idx_influencers_email\` ON \`influencers\`(\`email\`)`,
+		`CREATE INDEX IF NOT EXISTS \`idx_companies_email\` ON \`companies\`(\`email\`)`
 	]
 
 	for (const statement of sqlStart) {

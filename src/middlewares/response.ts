@@ -7,7 +7,7 @@ interface ErrorPayload {
 }
 
 const sendSuccess = <T>(res: Response, data: T, meta?: Record<string, unknown>) => {
-	return res.json({
+	return res.status(200).json({
 		success: true,
 		data,
 		meta: meta ?? null

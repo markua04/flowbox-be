@@ -8,14 +8,14 @@ const dbPath = path.join(tmpDir, "test.db")
 
 let dbModule: typeof import("../src/repositories/db")
 let repo: typeof import("../src/repositories/conversationRepository")
-let createSchema: typeof import("../src/repositories/schemaRepository").createSchema
+let createSchema: typeof import("../src/migrations/schema").createSchema
 
 beforeAll(async () => {
 	process.env.DB_PATH = dbPath
 	vi.resetModules()
 
 	dbModule = await import("../src/repositories/db")
-	createSchema = (await import("../src/repositories/schemaRepository")).createSchema
+	createSchema = (await import("../src/migrations/schema")).createSchema
 	repo = await import("../src/repositories/conversationRepository")
 
 	await createSchema()

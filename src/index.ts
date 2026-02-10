@@ -1,14 +1,13 @@
 //Setup express js
 import express, { Request, Response } from "express"
-import bodyParser from "body-parser"
 import influencerRoutes from "./routes/influencer"
 import companyRoutes from "./routes/company"
 import { initializeDatabase } from "./services/databaseService"
 import errorHandler from "./middlewares/errorHandler"
 
 const app = express()
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: false, limit: "100kb" }))
+app.use(express.json({ limit: "100kb" }))
 
 app.use("/influencer", influencerRoutes)
 app.use("/company", companyRoutes)

@@ -4,6 +4,8 @@ import HttpError from "../utils/httpError"
 const dbPath = process.env.DB_PATH ?? "./database/main.db"
 const db = new sqlite3.Database(dbPath)
 
+db.run("PRAGMA foreign_keys = ON")
+
 type SqlParams = readonly unknown[]
 
 const query = <T>(sql: string, params: SqlParams = []): Promise<T[]> => new Promise((resolve, reject) => {
