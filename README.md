@@ -12,6 +12,20 @@ docker compose up --build
 The server runs on:
 http://localhost:3000
 
+Run unit tests (Docker):
+```
+docker compose run --rm app npm test
+```
+If the container is already running:
+```
+docker compose exec app npm test
+```
+If you recently changed dependencies, rebuild the image so the container picks them up:
+```
+docker compose down
+docker compose up --build -d
+```
+
 ### Local
 Install dependencies:
 ```
