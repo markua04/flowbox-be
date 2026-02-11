@@ -1,20 +1,5 @@
 import HttpError from "./httpError"
 
-interface TimelineCursor {
-	beforeCreatedAt: string
-	beforeId: number
-}
-
-interface TimelinePagination {
-	limit: number
-	cursor: TimelineCursor | null
-}
-
-interface PreviewPagination {
-	limit: number
-	cursor: TimelineCursor | null
-}
-
 const parseConversationId = (value: string | undefined) => {
 	const parsed = Number(value)
 	if (!Number.isInteger(parsed) || parsed <= 0) {
@@ -66,61 +51,11 @@ const parseAttachmentInput = (value: unknown) => {
 	}
 }
 
-const parseLimit = (value: unknown, defaultValue: number) => {
-	if (value === undefined || value === null || value === "") {
-		return defaultValue
-	}
-	const parsed = Number(value)
-	if (!Number.isInteger(parsed) || parsed <= 0) {
-		throw new HttpError(400, "Limit must be a positive integer")
-	}
-	return parsed
-}
-
-const parseCursor = (query: Record<string, unknown>): TimelineCursor | null => {
-	const beforeCreatedAt = query.beforeCreatedAt
-	const beforeId = query.beforeId
-
-	if (beforeCreatedAt === undefined && beforeId === undefined) {
-		return null
-	}
-
-	if (typeof beforeCreatedAt !== "string" || beforeCreatedAt.trim().length === 0) {
-		throw new HttpError(400, "beforeCreatedAt is required with beforeId")
-	}
-
-	const parsedBeforeId = Number(beforeId)
-	if (!Number.isInteger(parsedBeforeId) || parsedBeforeId <= 0) {
-		throw new HttpError(400, "beforeId is required with beforeCreatedAt")
-	}
-
-	return {
-		beforeCreatedAt: beforeCreatedAt.trim(),
-		beforeId: parsedBeforeId
-	}
-}
-
-const parseTimelinePagination = (query: Record<string, unknown>, defaultLimit = 25): TimelinePagination => {
-	const limit = parseLimit(query.limit, defaultLimit)
-	return {
-		limit,
-		cursor: parseCursor(query)
-	}
-}
-
-const parsePreviewPagination = (query: Record<string, unknown>, defaultLimit = 25): PreviewPagination => {
-	const limit = parseLimit(query.limit, defaultLimit)
-	return {
-		limit,
-		cursor: parseCursor(query)
-	}
-}
+const normalizeQueryValue = (value: unknown) => (Array.isArray(value) ? value[0] : value)
 
 export {
 	parseConversationId,
 	parseMessageText,
-	parseAttachmentInput,
-	parseTimelinePagination,
-	parsePreviewPagination
+	parseAttachmentInput
 }
-export type { TimelinePagination, TimelineCursor, PreviewPagination }
+export { normalizeQueryValue }

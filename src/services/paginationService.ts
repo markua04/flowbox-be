@@ -1,5 +1,5 @@
 import type { ConversationPreviewRow, ConversationTimelineRow } from "../repositories/conversationRepository"
-import type { TimelineCursor } from "../utils/validation"
+import type { TimelineCursor } from "../utils/pagination"
 
 const buildNextCursorFromTimeline = (rows: ConversationTimelineRow[], limit: number): TimelineCursor | null => {
 	if (rows.length !== limit) {

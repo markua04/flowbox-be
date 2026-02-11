@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest"
 import HttpError from "../src/utils/httpError"
-import {
-	parseAttachmentInput,
-	parseConversationId,
-	parseMessageText,
-	parsePreviewPagination,
-	parseTimelinePagination
-} from "../src/utils/validation"
+import { DEFAULT_PAGINATION_LIMIT, parsePreviewPagination, parseTimelinePagination } from "../src/utils/pagination"
+import { parseAttachmentInput, parseConversationId, parseMessageText } from "../src/utils/validation"
 
 describe("validation", () => {
 	it("parses a valid conversation id", () => {
@@ -36,25 +31,25 @@ describe("validation", () => {
 	})
 
 	it("uses default limit for preview pagination", () => {
-		const pagination = parsePreviewPagination({}, 25)
-		expect(pagination.limit).toBe(25)
+		const pagination = parsePreviewPagination({})
+		expect(pagination.limit).toBe(DEFAULT_PAGINATION_LIMIT)
 		expect(pagination.cursor).toBeNull()
 	})
 
 	it("uses default limit for timeline pagination", () => {
-		const pagination = parseTimelinePagination({}, 25)
-		expect(pagination.limit).toBe(25)
+		const pagination = parseTimelinePagination({})
+		expect(pagination.limit).toBe(DEFAULT_PAGINATION_LIMIT)
 		expect(pagination.cursor).toBeNull()
 	})
 
 	it("parses cursor values for preview pagination", () => {
-		const pagination = parsePreviewPagination({ beforeCreatedAt: "2024-01-01 00:00:00", beforeId: "10", limit: "5" }, 25)
+		const pagination = parsePreviewPagination({ beforeCreatedAt: "2024-01-01 00:00:00", beforeId: "10", limit: "5" })
 		expect(pagination.limit).toBe(5)
 		expect(pagination.cursor?.beforeId).toBe(10)
 	})
 
 	it("parses cursor values for timeline pagination", () => {
-		const pagination = parseTimelinePagination({ beforeCreatedAt: "2024-01-01 00:00:00", beforeId: "10", limit: "5" }, 25)
+		const pagination = parseTimelinePagination({ beforeCreatedAt: "2024-01-01 00:00:00", beforeId: "10", limit: "5" })
 		expect(pagination.limit).toBe(5)
 		expect(pagination.cursor?.beforeId).toBe(10)
 	})

@@ -1,5 +1,5 @@
 import { query } from "./db"
-import type { TimelineCursor } from "../utils/validation"
+import type { TimelineCursor } from "../utils/pagination"
 import { buildPreviewCursorClause, buildTimelineCursorClause } from "../utils/pagination"
 
 interface ConversationPreviewRow {

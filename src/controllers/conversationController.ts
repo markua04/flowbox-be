@@ -12,7 +12,8 @@ import {
 	getInfluencerConversationDetail,
 	getInfluencerPreviews
 } from "../services/conversationService"
-import { parseAttachmentInput, parseConversationId, parseMessageText, parsePreviewPagination, parseTimelinePagination } from "../utils/validation"
+import { parsePreviewPagination, parseTimelinePagination } from "../utils/pagination"
+import { parseAttachmentInput, parseConversationId, parseMessageText } from "../utils/validation"
 
 class ConversationController {
 	static async listCompanyConversations(req: AuthenticatedRequest, res: Response) {
@@ -21,7 +22,7 @@ class ConversationController {
 			throw new HttpError(401, "Unauthorized")
 		}
 
-		const pagination = parsePreviewPagination(req.query as Record<string, unknown>, 25)
+		const pagination = parsePreviewPagination(req.query)
 		const result = await getCompanyPreviews(companyId, pagination.limit, pagination.cursor)
 		return sendSuccess(res, { conversations: result.conversations }, { nextCursor: result.nextCursor })
 	}
@@ -32,7 +33,7 @@ class ConversationController {
 			throw new HttpError(401, "Unauthorized")
 		}
 
-		const pagination = parsePreviewPagination(req.query as Record<string, unknown>, 25)
+		const pagination = parsePreviewPagination(req.query)
 		const result = await getInfluencerPreviews(influencerId, pagination.limit, pagination.cursor)
 		return sendSuccess(res, { conversations: result.conversations }, { nextCursor: result.nextCursor })
 	}
@@ -44,7 +45,7 @@ class ConversationController {
 		}
 
 		const conversationId = parseConversationId(req.params.id)
-		const pagination = parseTimelinePagination(req.query as Record<string, unknown>, 25)
+		const pagination = parseTimelinePagination(req.query)
 		const result = await getCompanyConversationDetail(companyId, conversationId, pagination.limit, pagination.cursor)
 		return sendSuccess(res, result.conversation, { nextCursor: result.nextCursor })
 	}
@@ -56,7 +57,7 @@ class ConversationController {
 		}
 
 		const conversationId = parseConversationId(req.params.id)
-		const pagination = parseTimelinePagination(req.query as Record<string, unknown>, 25)
+		const pagination = parseTimelinePagination(req.query)
 		const result = await getInfluencerConversationDetail(influencerId, conversationId, pagination.limit, pagination.cursor)
 		return sendSuccess(res, result.conversation, { nextCursor: result.nextCursor })
 	}

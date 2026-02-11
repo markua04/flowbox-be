@@ -13,7 +13,7 @@ import { createAttachment, createAttachmentChatItem, AttachmentInput } from "../
 import { createMessage, createMessageChatItem } from "../repositories/messageRepository"
 import { runInTransaction } from "../repositories/transaction"
 import HttpError from "../utils/httpError"
-import type { TimelineCursor } from "../utils/validation"
+import type { TimelineCursor } from "../utils/pagination"
 import { buildNextCursorFromPreview, buildNextCursorFromTimeline } from "./paginationService"
 
 interface ConversationCounterpart {
