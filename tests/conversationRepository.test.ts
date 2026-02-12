@@ -49,7 +49,7 @@ afterAll(async () => {
 
 describe("conversationRepository", () => {
 	it("returns company preview rows", async () => {
-		const rows = await repo.getCompanyConversationPreviews(1, 25)
+		const rows = await repo.getCompanyConversationPreviews(1, 25, null)
 		expect(rows.length).toBe(1)
 		expect(rows[0].latestItemType).toBe("message")
 	})
